@@ -30,6 +30,8 @@ Kirigami.Page {
     property bool cfg_showOnlyCurrentDesktopDefault: true
     property bool cfg_showOnlyCurrentActivity: false
     property bool cfg_showOnlyCurrentActivityDefault: true
+    property bool cfg_strictDesktopFilter: false
+    property bool cfg_strictDesktopFilterDefault: false
     property bool cfg_reverseFilters: false
     property bool cfg_reverseFiltersDefault: false
     property int cfg_minimizedFilter: 0

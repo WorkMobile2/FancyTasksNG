@@ -99,6 +99,9 @@ PlasmoidItem {
             modelUpdateTimer.restart();
             tasks.filteredTasksModel.invalidateFilter();
         }
+        function onStrictDesktopFilterChanged() {
+            tasks.filteredTasksModel.invalidateFilter();
+        }
         function onShowOnlyCurrentScreenChanged() {
             modelUpdateTimer.restart();
             tasks.filteredTasksModel.invalidateFilter();
@@ -329,6 +332,13 @@ PlasmoidItem {
     }
 
     readonly property TaskManager.TasksModel tasksModel: internalTasksModel
+    Connections {
+        target: internalTasksModel
+        function onVirtualDesktopChanged() {
+            if (tasks.config.strictDesktopFilter)
+                internalFilteredTasksModel.invalidateFilter();
+        }
+    }
     TaskManager.TasksModel {
         id: internalTasksModel
 
@@ -383,6 +393,18 @@ PlasmoidItem {
                     return false;
             }
 
+            // The task model always lets attention-demanding windows through the
+            // desktop filter; optionally enforce it here.
+            if (tasks.config.strictDesktopFilter && tasks.config.showOnlyCurrentDesktop && !tasks.config.reverseFilters) {
+                if (internalTasksModel.data(idx, TaskManager.AbstractTasksModel.IsWindow) === true
+                        && internalTasksModel.data(idx, TaskManager.AbstractTasksModel.IsOnAllVirtualDesktops) !== true) {
+                    const desktops = internalTasksModel.data(idx, TaskManager.AbstractTasksModel.VirtualDesktops);
+                    if (Array.isArray(desktops) && desktops.length > 0 && desktops.indexOf(tasks.tasksModel.virtualDesktop) === -1) {
+                        return false;
+                    }
+                }
+            }
+
             // Reverse Filters (hide instead of show)
             if (tasks.config.reverseFilters) {
                 // Screen Filter: hide tasks on the current screen
@@ -427,7 +449,7 @@ PlasmoidItem {
         }
     }
 
-    readonly property var effectiveTasksModel: (tasks.config.minimizedFilter === 0 && !tasks.config.reverseFilters) ? internalTasksModel : internalFilteredTasksModel
+    readonly property var effectiveTasksModel: (tasks.config.minimizedFilter === 0 && !tasks.config.reverseFilters && !tasks.config.strictDesktopFilter) ? internalTasksModel : internalFilteredTasksModel
 
     Timer {
         id: modelUpdateTimer

@@ -23,6 +23,10 @@
             >Whether to show only tasks that are on the current activity.</label>
       <default>true</default>
     </entry>
+    <entry name="strictDesktopFilter" type="Bool">
+      <label>Apply the current-desktop filter even to windows demanding attention.</label>
+      <default>false</default>
+    </entry>
     <entry name="reverseFilters" type="Bool">
       <label>Whether to invert desktop, screen and activity filters (hide instead of show).</label>
       <default>false</default>

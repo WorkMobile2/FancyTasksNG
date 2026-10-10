@@ -310,6 +310,15 @@ ConfigPage {
             }
     
             CheckBox {
+                id: cfg_strictDesktopFilter
+                Layout.leftMargin: behaviorPage.gridUnit * 3
+                text: Wrappers.i18n("Also hide windows demanding attention from other desktops")
+                checked: behaviorPage.cfg_strictDesktopFilter
+                enabled: cfg_showOnlyCurrentDesktop.checked && !cfg_reverseFilters.checked
+                onToggled: behaviorPage.cfg_strictDesktopFilter = checked
+            }
+
+            CheckBox {
                 id: cfg_showOnlyCurrentActivity
                 Layout.leftMargin: behaviorPage.gridUnit * 1.5
                 text: Wrappers.i18n("From current activity")
