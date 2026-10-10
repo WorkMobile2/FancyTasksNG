@@ -236,6 +236,20 @@ Item {
         }
         return list;
     }
+    // EXPERIMENTAL: prefer the real X11 window icon for ungrouped window tasks.
+    // Pure read of the cache; helper execution only happens via _requestWindowIcon().
+    readonly property string _singleWinId: (task.model && !task.model.IsLauncher && task.model.IsWindow && task.winIdList.length === 1)
+        ? String(task.winIdList[0]) : ""
+    readonly property var effectiveDecoration: {
+        const cached = task._singleWinId ? WindowIconManager.icons[task._singleWinId] : undefined;
+        return cached ? cached : (task.model ? task.model.decoration : "");
+    }
+    on_SingleWinIdChanged: task._requestWindowIcon()
+    function _requestWindowIcon() {
+        if (task._singleWinId) {
+            WindowIconManager.request(task._singleWinId);
+        }
+    }
     property bool wasMiddleClicked: false
 
     // Media Controller Proxy Properties
@@ -681,7 +695,7 @@ Item {
         // qmllint disable unqualified
         Kirigami.ImageColors {
             id: imageColors
-            source: task.model.decoration
+            source: task.effectiveDecoration
         }
         // qmllint enable unqualified
         property color dominantColor: imageColors.dominant
@@ -906,6 +920,7 @@ Item {
             tasksRoot.taskInitComponent.createObject(task);
         }
         task.completed = true;
+        task._requestWindowIcon();
 
         if (task.model && task.model.LauncherUrlWithoutIcon) {
             // Same parameters ContextMenu.query() will use, so the prefetched cache entry actually hits

@@ -214,7 +214,7 @@ Item {
                 active: iconBox._taskHighlighted
                 enabled: true
 
-                source: iconBox._taskHasModel ? iconBox.taskItem.model.decoration : ""
+                source: iconBox._taskHasModel ? iconBox.taskItem.effectiveDecoration : ""
                 opacity: 1.0
                 Behavior on opacity {
                     NumberAnimation { duration: 250 }
