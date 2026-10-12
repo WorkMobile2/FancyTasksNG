@@ -29,6 +29,7 @@ import org.kde.plasma.extras as PlasmaExtras
 import org.kde.plasma.components as PlasmaComponents3
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.plasmoid
+import org.kde.taskmanager as TaskManager
 import QtQuick.Effects
 
 import "code/layoutmetrics.js" as LayoutMetrics
@@ -523,16 +524,33 @@ Item {
     }
 
     function modelIndex(): /*QModelIndex*/ var {
-        if (tasksRoot && tasksRoot.filteredTasksModel) {
+        if (!tasksRoot || !tasksRoot.tasksModel || task.index < 0) return undefined;
+        let sourceIdx;
+        if (tasksRoot.effectiveTasksModel === tasksRoot.filteredTasksModel) {
             const proxyIdx = tasksRoot.filteredTasksModel.index(task.index, 0);
             if (proxyIdx.valid) {
-                return tasksRoot.filteredTasksModel.mapToSource(proxyIdx);
+                sourceIdx = tasksRoot.filteredTasksModel.mapToSource(proxyIdx);
             }
+        } else {
+            sourceIdx = tasksRoot.tasksModel.makeModelIndex(task.index);
         }
-        if (tasksRoot && tasksRoot.tasksModel && task.index >= 0) {
-            return tasksRoot.tasksModel.makeModelIndex(task.index);
+
+        // Desktop moves can reorder filtered rows. Resolve single-window tasks
+        // by their displayed window identity rather than activating a stale row.
+        if (task._singleWinId) {
+            function matchesWindow(idx) {
+                if (!idx || !idx.valid) return false;
+                const ids = tasksRoot.tasksModel.data(idx, TaskManager.AbstractTasksModel.WinIdList);
+                return ids && ids.length === 1 && String(ids[0]) === task._singleWinId;
+            }
+            if (matchesWindow(sourceIdx)) return sourceIdx;
+            for (let row = 0; row < tasksRoot.tasksModel.rowCount(); ++row) {
+                const candidate = tasksRoot.tasksModel.makeModelIndex(row);
+                if (matchesWindow(candidate)) return candidate;
+            }
+            return undefined;
         }
-        return undefined;
+        return sourceIdx && sourceIdx.valid ? sourceIdx : undefined;
     }
 
 

@@ -45,6 +45,14 @@ PlasmaExtras.Menu {
     property bool showAllPlaces: false
     property var firstMediaItem: null
 
+    // Release a stuck native popup grab even if deactivation never arrives.
+    property Timer safetyCloseTimer: Timer {
+        interval: 6000
+        repeat: false
+        running: menu.status === PlasmaExtras.Menu.Open
+        onTriggered: menu.close()
+    }
+
     placement: {
         if (tasksRoot.effectiveLocation === PlasmaCore.Types.LeftEdge) {
             return PlasmaExtras.Menu.RightPosedTopAlignedPopup;

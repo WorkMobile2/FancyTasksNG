@@ -37,24 +37,29 @@ MouseArea {
         }
 
         switch (mouse.button) {
-        case Qt.LeftButton:
-            tasksModel.requestActivate(targetIndex);
-            rootTask.closeTooltip();
-            if (rootTask.tasksRoot) {
-                rootTask.tasksRoot.cancelHighlightWindows();
-            }
+        case Qt.LeftButton: {
+            // Closing the preview may unload this MouseArea and its bindings.
+            const activationModel = tasksModel;
+            const taskToActivate = rootTask;
+            taskToActivate.closeTooltip();
+            activationModel.requestActivate(targetIndex);
             break;
+        }
         case Qt.MiddleButton:
             if (rootTask.tasksRoot) {
                 rootTask.tasksRoot.cancelHighlightWindows();
             }
             tasksModel.requestClose(targetIndex);
             break;
-        case Qt.RightButton:
+        case Qt.RightButton: {
             if (rootTask.tasksRoot) {
-                rootTask.tasksRoot.createContextMenu(rootTask, targetIndex).show();
+                // Create the menu while the preview's model index is still valid.
+                const contextMenu = rootTask.tasksRoot.createContextMenu(rootTask, targetIndex);
+                rootTask.closeTooltip();
+                if (contextMenu) contextMenu.show();
             }
             break;
+        }
         }
     }
 

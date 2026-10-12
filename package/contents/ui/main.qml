@@ -79,6 +79,14 @@ PlasmoidItem {
     property bool _initialStartup: true
     property bool _isDestroying: false
 
+    function desktopListContains(desktops, currentDesktop) {
+        // Qt model roles expose sequence objects, not necessarily JS Arrays.
+        if (!desktops || typeof desktops.length !== "number") return false;
+        for (let i = 0; i < desktops.length; ++i) {
+            if (String(desktops[i]) === String(currentDesktop)) return true;
+        }
+        return false;
+    }
     Timer {
         id: startupTimer
         interval: 1500
@@ -150,8 +158,12 @@ PlasmoidItem {
 
     function hideTooltipImmediately() {
         tasks.tooltipAnimationEnabled = false;
+        if (tasks.currentHoveredTask) tasks.currentHoveredTask.toolTipOpen = false;
         tasks.currentHoveredTask = null;
         tasks.toolTipOpenedByClick = null;
+        tasks.toolTipAreaItem = null;
+        tasks.isTooltipHovered = false;
+        tasks.cancelHighlightWindows();
         Qt.callLater(() => {
             if (tasks) {
                 tasks.tooltipAnimationEnabled = true;
@@ -207,6 +219,16 @@ PlasmoidItem {
                 tasks.currentHoveredTask = null;
             }
         }
+    }
+
+    // Hard deadline independent of hover/leave events, which an X11 RemoteApp
+    // input grab can prevent from arriving. Do not extend it on task changes.
+    Timer {
+        id: tooltipSafetyTimer
+        interval: 6000
+        repeat: false
+        running: windowTooltipDialog.visible
+        onTriggered: tasks.hideTooltipImmediately()
     }
 
     readonly property Component contextMenuComponent: Qt.createComponent("ContextMenu.qml")
@@ -396,12 +418,14 @@ PlasmoidItem {
             // The task model always lets attention-demanding windows through the
             // desktop filter; optionally enforce it here.
             if (tasks.config.strictDesktopFilter && tasks.config.showOnlyCurrentDesktop && !tasks.config.reverseFilters) {
-                if (internalTasksModel.data(idx, TaskManager.AbstractTasksModel.IsWindow) === true
-                        && internalTasksModel.data(idx, TaskManager.AbstractTasksModel.IsOnAllVirtualDesktops) !== true) {
-                    const desktops = internalTasksModel.data(idx, TaskManager.AbstractTasksModel.VirtualDesktops);
-                    if (Array.isArray(desktops) && desktops.length > 0 && desktops.indexOf(tasks.tasksModel.virtualDesktop) === -1) {
-                        return false;
-                    }
+                const isWindow = internalTasksModel.data(idx, TaskManager.AbstractTasksModel.IsWindow);
+                const onAllDesktops = internalTasksModel.data(idx, TaskManager.AbstractTasksModel.IsOnAllVirtualDesktops);
+                const desktops = internalTasksModel.data(idx, TaskManager.AbstractTasksModel.VirtualDesktops);
+                const currentDesktop = tasks.tasksModel.virtualDesktop;
+                const hide = isWindow === true && onAllDesktops !== true
+                    && desktops && desktops.length > 0 && !tasks.desktopListContains(desktops, currentDesktop);
+                if (hide) {
+                    return false;
                 }
             }
 
