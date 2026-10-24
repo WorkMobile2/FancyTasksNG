@@ -215,6 +215,7 @@ Item {
                 enabled: true
 
                 source: iconBox._taskHasModel ? iconBox.taskItem.effectiveDecoration : ""
+                fallback: "application-x-executable"
                 opacity: 1.0
                 Behavior on opacity {
                     NumberAnimation { duration: 250 }

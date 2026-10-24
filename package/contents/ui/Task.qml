@@ -248,7 +248,7 @@ Item {
     on_SingleWinIdChanged: task._requestWindowIcon()
     function _requestWindowIcon() {
         if (task._singleWinId) {
-            WindowIconManager.request(task._singleWinId);
+            WindowIconManager.request(task._singleWinId, task.tasksRoot);
         }
     }
     property bool wasMiddleClicked: false

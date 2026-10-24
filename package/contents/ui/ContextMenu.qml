@@ -449,6 +449,22 @@ PlasmaExtras.Menu {
     }
 
     PlasmaExtras.MenuItem {
+        visible: menu.visualParent && menu.get(menu.atm.IsWindow) === true
+        enabled: visible && menu.get(menu.atm.IsMovable) === true
+        text: Wrappers.i18n("Move to Next Monitor")
+        icon: "video-display"
+        onClicked: WindowIconManager.moveToMonitor(menu.get(menu.atm.WinIdList), "next")
+    }
+
+    PlasmaExtras.MenuItem {
+        visible: menu.visualParent && menu.get(menu.atm.IsWindow) === true
+        enabled: visible && menu.get(menu.atm.IsMovable) === true
+        text: Wrappers.i18n("Move to Previous Monitor")
+        icon: "video-display"
+        onClicked: WindowIconManager.moveToMonitor(menu.get(menu.atm.WinIdList), "previous")
+    }
+
+    PlasmaExtras.MenuItem {
         id: virtualDesktopsMenuItem
 
         visible: (menu.virtualDesktopInfo.numberOfDesktops > 1 || !config.hideMoveToDesktopMenuWithOneDesktop) && (menu.visualParent && !menu.get(menu.atm.IsLauncher) && !menu.get(menu.atm.IsStartup) && menu.get(menu.atm.IsVirtualDesktopsChangeable))
