@@ -15,6 +15,14 @@
 </p>
 
 ---
+## Adding on the excellent work as detailed below!
+
+I wanted to run my windows apps under remote App for work. I really do have to run some Windows apps - although I have gone to Linux with every Desktop app I possibly can but some windows developement does need full Visual Studio - and SSMS.
+
+Then once you start - you really do need Explorer, Edge and task manager. This fork adds support to show the embedded X11 icon for remote apps. This is X11 only at the moment - I need to investigate ways to build this for Wayland - maybe just X11Wayland.
+
+Here is a screenshot of my X11 desktop running RemoteApps from my windows machine in the office at the other end of my VPN. Pretty seamless on my taskbar and displays!
+
 
 ![Fancy Tasks NG Screenshot](media/screenshots.png)
 
