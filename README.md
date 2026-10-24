@@ -23,6 +23,9 @@ Then once you start - you really do need Explorer, Edge and task manager. This f
 
 Here is a screenshot of my X11 desktop running RemoteApps from my windows machine in the office at the other end of my VPN. Pretty seamless on my taskbar and displays!
 
+![Fancy Tasks NG Screenshot](media/ScreenshotX11RemoteApp.png)
+
+
 
 ![Fancy Tasks NG Screenshot](media/screenshots.png)
 
